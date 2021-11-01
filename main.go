@@ -1,11 +1,9 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
-
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // album represents data about a record album.
@@ -23,26 +21,18 @@ var albums = []album{
 	{ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
 }
 
-// Returns a friendly STRING when system starts
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("Endpoint Hit: homePage")
+func homePage(c *gin.Context) {
+	c.String(http.StatusOK, "Welcome and say hello to my little friend!")
 }
 
 // Returns a JSON formatted array of Albums
-func returnAllAlbums(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: returnAllAlbums")
-	json.NewEncoder(w).Encode(albums)
-}
-
-// Define all the routes and starts the server up
-func handleRequests() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/albums", returnAllAlbums)
-	log.Fatal(http.ListenAndServe(":8081", nil))
+func getAlbums(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, albums)
 }
 
 func main() {
-	fmt.Println("Running server on: http://localhost:8081")
-	handleRequests()
+	router := gin.Default()
+	router.GET("/", homePage)
+	router.GET("/albums", getAlbums)
+	router.Run(":8081")
 }
